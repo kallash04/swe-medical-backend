@@ -80,3 +80,4 @@
 + chore: update README with setup instructions
 + chore: update README with setup instructions
 + refactor: extract availability service
++ refactor: reorganize controllers directory
