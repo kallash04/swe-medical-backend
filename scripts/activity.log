@@ -77,3 +77,4 @@
 + test: add integration tests for booking
 + test: add integration tests for booking
 + fix: resolve timezone issue in appointments
++ chore: update README with setup instructions
