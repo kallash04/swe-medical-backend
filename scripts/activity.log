@@ -86,3 +86,4 @@
 + chore: bump dependencies
 + feat: integrate Bedrock AI classification
 + fix: resolve timezone issue in appointments
++ docs: document new availability routes
