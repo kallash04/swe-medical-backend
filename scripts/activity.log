@@ -84,3 +84,4 @@
 + docs: document new availability routes
 + fix: correct slot generation logic
 + chore: bump dependencies
++ feat: integrate Bedrock AI classification
