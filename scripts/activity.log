@@ -82,3 +82,4 @@
 + refactor: extract availability service
 + refactor: reorganize controllers directory
 + docs: document new availability routes
++ fix: correct slot generation logic
