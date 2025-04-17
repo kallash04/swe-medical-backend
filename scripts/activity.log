@@ -89,3 +89,4 @@
 + docs: document new availability routes
 + refactor: extract availability service
 + refactor: extract availability service
++ fix: correct slot generation logic
