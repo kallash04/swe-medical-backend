@@ -88,3 +88,4 @@
 + fix: resolve timezone issue in appointments
 + docs: document new availability routes
 + refactor: extract availability service
++ refactor: extract availability service
