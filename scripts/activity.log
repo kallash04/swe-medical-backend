@@ -90,3 +90,4 @@
 + refactor: extract availability service
 + refactor: extract availability service
 + fix: correct slot generation logic
++ feat: integrate Bedrock AI classification
