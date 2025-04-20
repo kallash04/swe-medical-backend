@@ -92,3 +92,4 @@
 + fix: correct slot generation logic
 + feat: integrate Bedrock AI classification
 + perf: optimize database queries for schedule
++ feat: add history log endpoint
