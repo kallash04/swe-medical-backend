@@ -94,3 +94,4 @@
 + perf: optimize database queries for schedule
 + feat: add history log endpoint
 + refactor: extract availability service
++ feat: implement doctor availability endpoints
