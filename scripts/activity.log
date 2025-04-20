@@ -91,3 +91,4 @@
 + refactor: extract availability service
 + fix: correct slot generation logic
 + feat: integrate Bedrock AI classification
++ perf: optimize database queries for schedule
