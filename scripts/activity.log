@@ -98,3 +98,4 @@
 + feat: implement doctor availability endpoints
 + feat: add history log endpoint
 + fix: correct slot generation logic
++ chore: bump dependencies
