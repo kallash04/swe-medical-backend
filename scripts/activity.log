@@ -100,3 +100,4 @@
 + fix: correct slot generation logic
 + chore: bump dependencies
 + refactor: extract availability service
++ refactor: extract availability service
