@@ -104,3 +104,4 @@
 + chore: bump dependencies
 + docs: update API docs for appointments
 + refactor: reorganize controllers directory
++ feat: add history log endpoint
