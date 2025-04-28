@@ -106,3 +106,4 @@
 + refactor: reorganize controllers directory
 + feat: add history log endpoint
 + feat: integrate Bedrock AI classification
++ chore: update README with setup instructions
