@@ -105,3 +105,4 @@
 + docs: update API docs for appointments
 + refactor: reorganize controllers directory
 + feat: add history log endpoint
++ feat: integrate Bedrock AI classification
