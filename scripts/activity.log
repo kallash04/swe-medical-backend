@@ -111,3 +111,4 @@
 + test: add integration tests for booking
 + chore: update README with setup instructions
 + refactor: reorganize controllers directory
++ chore: update README with setup instructions
