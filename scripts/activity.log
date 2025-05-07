@@ -116,3 +116,4 @@
 + fix: resolve timezone issue in appointments
 + feat: add history log endpoint
 + perf: optimize database queries for schedule
++ feat: integrate Bedrock AI classification
