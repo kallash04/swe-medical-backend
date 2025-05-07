@@ -115,3 +115,4 @@
 + chore: update README with setup instructions
 + fix: resolve timezone issue in appointments
 + feat: add history log endpoint
++ perf: optimize database queries for schedule
