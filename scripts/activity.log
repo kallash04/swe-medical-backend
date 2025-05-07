@@ -117,3 +117,4 @@
 + feat: add history log endpoint
 + perf: optimize database queries for schedule
 + feat: integrate Bedrock AI classification
++ test: add integration tests for booking
