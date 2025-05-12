@@ -120,3 +120,4 @@
 + test: add integration tests for booking
 + perf: optimize database queries for schedule
 + fix: correct slot generation logic
++ refactor: reorganize controllers directory
