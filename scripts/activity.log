@@ -119,3 +119,4 @@
 + feat: integrate Bedrock AI classification
 + test: add integration tests for booking
 + perf: optimize database queries for schedule
++ fix: correct slot generation logic
