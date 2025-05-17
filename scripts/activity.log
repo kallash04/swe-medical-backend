@@ -129,3 +129,4 @@
 + fix: correct slot generation logic
 + docs: update API docs for appointments
 + feat: implement doctor availability endpoints
++ perf: optimize database queries for schedule
