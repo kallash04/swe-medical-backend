@@ -126,3 +126,4 @@
 + refactor: reorganize controllers directory
 + feat: integrate Bedrock AI classification
 + perf: optimize database queries for schedule
++ fix: correct slot generation logic
