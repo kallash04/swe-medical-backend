@@ -131,3 +131,4 @@
 + feat: implement doctor availability endpoints
 + perf: optimize database queries for schedule
 + chore: bump dependencies
++ feat: add history log endpoint
