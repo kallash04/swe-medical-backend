@@ -133,3 +133,4 @@
 + chore: bump dependencies
 + feat: add history log endpoint
 + fix: correct slot generation logic
++ fix: correct slot generation logic
