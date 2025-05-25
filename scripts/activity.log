@@ -137,3 +137,4 @@
 + fix: resolve timezone issue in appointments
 + feat: integrate Bedrock AI classification
 + fix: resolve timezone issue in appointments
++ feat: integrate Bedrock AI classification
