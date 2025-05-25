@@ -135,3 +135,4 @@
 + fix: correct slot generation logic
 + fix: correct slot generation logic
 + fix: resolve timezone issue in appointments
++ feat: integrate Bedrock AI classification
