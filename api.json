@@ -1,0 +1,931 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Medical Appointment API",
+    "version": "1.0.0",
+    "description": "Backend API for Users, Doctors, and Admins to manage appointments, records, and availability."
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Invalid credentials"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "role": { "type": "string", "enum": ["user", "doctor", "admin"] },
+          "profile_photo_url": { "type": "string", "format": "uri", "nullable": true },
+          "assigned_doctor_id": { "type": "string", "format": "uuid", "nullable": true },
+          "department_id": { "type": "string", "format": "uuid", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "email", "name", "role", "created_at", "updated_at"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["email", "password", "name"]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": { "$ref": "#/components/schemas/User" },
+              "token": { "type": "string", "example": "eyJhbGciOiJIUzI1Ni..." }
+            }
+          }
+        }
+      },
+      "ProfileUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "profile_photo_url": { "type": "string", "format": "uri" }
+        }
+      },
+      "DoctorsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "doctors": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      },
+      "CalendarResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "days": {
+                "type": "array",
+                "items": { "type": "string", "format": "date" }
+              }
+            }
+          }
+        }
+      },
+      "SlotsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "slots": {
+                "type": "array",
+                "items": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        }
+      },
+      "AppointmentBookingRequest": {
+        "type": "object",
+        "properties": {
+          "doctorId": { "type": "string", "format": "uuid" },
+          "appointmentTime": { "type": "string", "format": "date-time" }
+        },
+        "required": ["doctorId", "appointmentTime"]
+      },
+      "Appointment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
+          "doctor_id": { "type": "string", "format": "uuid" },
+          "appointment_time": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["scheduled", "cancelled", "completed"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "user_id", "doctor_id", "appointment_time", "status"]
+      },
+      "AppointmentResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "booking": { "$ref": "#/components/schemas/Appointment" }
+            }
+          }
+        }
+      },
+      "HistoryEntry": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "record_id": { "type": "string", "format": "uuid" },
+          "changed_by": { "type": "string", "format": "uuid" },
+          "change_type": { "type": "string" },
+          "change_details": { "type": "object" },
+          "change_timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "record_id", "changed_by", "change_type", "change_timestamp"]
+      },
+      "HistoryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "history": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/HistoryEntry" }
+              }
+            }
+          }
+        }
+      },
+      "Patient": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "profile_photo_url": { "type": "string", "format": "uri", "nullable": true }
+        },
+        "required": ["id", "name", "email"]
+      },
+      "PatientsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "patients": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/Patient" }
+              }
+            }
+          }
+        }
+      },
+      "MedicalRecord": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
+          "data": { "type": "object" },
+          "last_edited_by": { "type": "string", "format": "uuid", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "last_edited_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "user_id", "data", "created_at", "last_edited_at"]
+      },
+      "MedicalRecordResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "record": { "$ref": "#/components/schemas/MedicalRecord" }
+            }
+          }
+        }
+      },
+      "AvailabilityBlock": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "doctor_id": { "type": "string", "format": "uuid" },
+          "day_of_week": { "type": "integer", "minimum": 0, "maximum": 6 },
+          "start_time": { "type": "string", "example": "09:00" },
+          "end_time": { "type": "string", "example": "17:30" }
+        },
+        "required": ["id", "doctor_id", "day_of_week", "start_time", "end_time"]
+      },
+      "AvailabilityResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "availability": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/AvailabilityBlock" }
+              }
+            }
+          }
+        }
+      },
+      "AvailabilitySetRequest": {
+        "type": "object",
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "day_of_week": { "type": "integer", "minimum": 0, "maximum": 6 },
+                "start_time": { "type": "string", "example": "09:00" },
+                "end_time": { "type": "string", "example": "17:30" }
+              },
+              "required": ["day_of_week", "start_time", "end_time"]
+            }
+          }
+        },
+        "required": ["blocks"]
+      },
+      "ClassifyRequest": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "example": "I have a headache and fever" }
+        },
+        "required": ["text"]
+      },
+      "ClassifyResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "departmentId": { "type": "string", "format": "uuid" }
+            }
+          }
+        }
+      },
+      "AdminUserCreateRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["email", "password", "name"]
+      },
+      "AdminDoctorCreateRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" },
+          "name": { "type": "string" },
+          "department_id": { "type": "string", "format": "uuid" }
+        },
+        "required": ["email", "password", "name", "department_id"]
+      },
+      "UnassignedUsersResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "users": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      },
+      "AssignDoctorRequest": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "doctorId": { "type": "string", "format": "uuid" }
+        },
+        "required": ["userId", "doctorId"]
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": { "$ref": "#/components/schemas/User" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login and obtain JWT",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get own profile",
+        "responses": {
+          "200": {
+            "description": "Profile data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "data": { "type": "object", "properties": { "user": { "$ref": "#/components/schemas/User" } } } }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "patch": {
+        "tags": ["User"],
+        "summary": "Update own profile",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProfileUpdateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "data": { "type": "object", "properties": { "user": { "$ref": "#/components/schemas/User" } } } }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/user/doctors": {
+      "get": {
+        "tags": ["User"],
+        "summary": "List available doctors",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "departmentId",
+            "schema": { "type": "string", "format": "uuid" },
+            "required": false,
+            "description": "Filter by department"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Doctors list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DoctorsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments/calendar": {
+      "get": {
+        "tags": ["Appointments"],
+        "summary": "Get days with availability for a doctor",
+        "parameters": [
+          { "in": "query", "name": "doctorId", "schema": { "type": "string", "format": "uuid" }, "required": true },
+          { "in": "query", "name": "monthStart", "schema": { "type": "string", "format": "date" }, "required": true },
+          { "in": "query", "name": "monthEnd", "schema": { "type": "string", "format": "date" }, "required": true }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available days",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments/slots": {
+      "get": {
+        "tags": ["Appointments"],
+        "summary": "Get available 30-minute slots for a date",
+        "parameters": [
+          { "in": "query", "name": "doctorId", "schema": { "type": "string", "format": "uuid" }, "required": true },
+          { "in": "query", "name": "date", "schema": { "type": "string", "format": "date" }, "required": true }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available slots",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SlotsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "post": {
+        "tags": ["Appointments"],
+        "summary": "Book an appointment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AppointmentBookingRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment booked",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AppointmentResponse" }
+              }
+            }
+          },
+          "400": { "description": "Invalid slot", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/appointments/{appointmentId}/cancel": {
+      "post": {
+        "tags": ["Appointments"],
+        "summary": "Cancel an appointment",
+        "parameters": [
+          { "in": "path", "name": "appointmentId", "schema": { "type": "string", "format": "uuid" }, "required": true }
+        ],
+        "responses": {
+          "200": { "description": "Cancelled", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AppointmentResponse" } } } }
+        }
+      }
+    },
+    "/appointments/{appointmentId}/complete": {
+      "post": {
+        "tags": ["Appointments"],
+        "summary": "Mark appointment as completed",
+        "parameters": [
+          { "in": "path", "name": "appointmentId", "schema": { "type": "string", "format": "uuid" }, "required": true }
+        ],
+        "responses": {
+          "200": { "description": "Completed", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AppointmentResponse" } } } }
+        }
+      }
+    },
+    "/history": {
+      "get": {
+        "tags": ["History"],
+        "summary": "Get own medical-record history",
+        "responses": {
+          "200": {
+            "description": "History entries",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HistoryResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctor/patients": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "List assigned patients",
+        "responses": {
+          "200": {
+            "description": "Patients list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PatientsResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctor/patients/{patientId}/record": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "Get a patient's medical record",
+        "parameters": [
+          { "in": "path", "name": "patientId", "schema": { "type": "string", "format": "uuid" }, "required": true }
+        ],
+        "responses": {
+          "200": {
+            "description": "Medical record",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MedicalRecordResponse" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Doctor"],
+        "summary": "Update a patient's medical record",
+        "parameters": [
+          { "in": "path", "name": "patientId", "schema": { "type": "string", "format": "uuid" }, "required": true }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": { "type": "object" }
+                },
+                "required": ["data"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MedicalRecordResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctor/availability": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "Get weekly availability blocks",
+        "responses": {
+          "200": {
+            "description": "Availability blocks",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AvailabilityResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Doctor"],
+        "summary": "Set weekly availability blocks",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AvailabilitySetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Availability set",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AvailabilityResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctor/availability/{dayOfWeek}": {
+      "delete": {
+        "tags": ["Doctor"],
+        "summary": "Clear availability for one weekday",
+        "parameters": [
+          { "in": "path", "name": "dayOfWeek", "schema": { "type": "integer", "minimum": 0, "maximum": 6 }, "required": true }
+        ],
+        "responses": {
+          "200": { "description": "Cleared", "content": { "application/json": { "schema": { "type": "object", "properties": {} } } } }
+        }
+      }
+    },
+    "/doctor/calendar": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "Get calendar highlights",
+        "parameters": [
+          { "in": "query", "name": "monthStart", "schema": { "type": "string", "format": "date" }, "required": true },
+          { "in": "query", "name": "monthEnd", "schema": { "type": "string", "format": "date" }, "required": true }
+        ],
+        "responses": {
+          "200": {
+            "description": "Highlighted days",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CalendarResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doctor/appointments": {
+      "get": {
+        "tags": ["Doctor"],
+        "summary": "List appointments for a date",
+        "parameters": [
+          { "in": "query", "name": "date", "schema": { "type": "string", "format": "date" }, "required": true }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointments list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "appointments": {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/Appointment" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/classify": {
+      "post": {
+        "tags": ["AI"],
+        "summary": "Classify user issue into a department",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ClassifyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Department identified",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ClassifyResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List all users",
+        "responses": {
+          "200": {
+            "description": "Users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/User" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Create a new user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdminUserCreateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": { "$ref": "#/components/schemas/User" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/doctors": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List all doctors",
+        "responses": {
+          "200": {
+            "description": "Doctors list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PatientsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Create a new doctor",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdminDoctorCreateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doctor created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "doctor": { "$ref": "#/components/schemas/User" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/unassigned": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List users without assigned doctor",
+        "responses": {
+          "200": {
+            "description": "Unassigned users",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UnassignedUsersResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/assign": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Assign a doctor to a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AssignDoctorRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": { "$ref": "#/components/schemas/User" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
