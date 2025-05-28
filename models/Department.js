@@ -1,8 +1,8 @@
 // models/Department.js
-const db = require('../config/db');
+const db = require("../config/db");
 
 class Department {
-  static table = 'departments';
+  static table = "departments";
 
   static async getAll() {
     const res = await db.query(`SELECT * FROM ${this.table} ORDER BY name`);
@@ -10,10 +10,16 @@ class Department {
   }
 
   static async getById(id) {
-    const res = await db.query(
-      `SELECT * FROM ${this.table} WHERE id = $1`,
-      [id]
-    );
+    const res = await db.query(`SELECT * FROM ${this.table} WHERE id = $1`, [
+      id,
+    ]);
+    return res.rows[0];
+  }
+
+  static async getByName(name) {
+    const res = await db.query(`SELECT * FROM ${this.table} WHERE name = $1`, [
+      name,
+    ]);
     return res.rows[0];
   }
 

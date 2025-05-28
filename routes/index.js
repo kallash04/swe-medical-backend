@@ -9,4 +9,5 @@ module.exports = (app) => {
   app.use('/admin',        require('./admin.routes'));
   app.use('/departments',  require('./department.routes'));
   app.use('/availability', require('./availability.routes'));
+  app.use('/services',     require('./services.routes'));
 };

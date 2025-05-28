@@ -38,18 +38,21 @@ const sendError = (res, error = 'An error occurred', status = 500) => {
  * @param {number} slotDuration - minutes per slot (default 30)
  * @returns {string[]} array of ISO timestamp strings
  */
-const generateTimeSlots = (startTime, endTime, slotDuration = 30) => {
+const generateTimeSlots = (dateInput, startTime, endTime, slotDuration = 30) => {
+  const baseDate = dateInput instanceof Date ? new Date(dateInput) : new Date(dateInput);
   const [h1, m1] = startTime.split(':').map(Number);
   const [h2, m2] = endTime.split(':').map(Number);
   const slots = [];
-  let current = new Date();
+
+  const current = new Date(baseDate);
   current.setHours(h1, m1, 0, 0);
-  const end = new Date(current);
+
+  const end = new Date(baseDate);
   end.setHours(h2, m2, 0, 0);
 
   while (current.getTime() + slotDuration * 60000 <= end.getTime()) {
     slots.push(current.toISOString());
-    current = new Date(current.getTime() + slotDuration * 60000);
+    current.setTime(current.getTime() + slotDuration * 60000);
   }
 
   return slots;

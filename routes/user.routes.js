@@ -10,6 +10,7 @@ router.use(authMiddleware);
 // Get or update own profile
 router.get('/profile',    userController.getProfile);
 router.patch('/profile',  userController.updateProfile);
+router.patch('/profile/password', userController.changeUserPassword);
 
 // List doctors, optionally filtered by ?departmentId=
 router.get('/doctors',    userController.listDoctors);

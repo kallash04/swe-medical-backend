@@ -17,8 +17,9 @@ const app = express();
 // Enable CORS for all origins (customize as needed)
 app.use(cors());
 
-// Parse JSON bodies
-app.use(express.json());
+// Limit request body size to 15MB
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Parse URL-encoded bodies (e.g. form submissions)
 app.use(express.urlencoded({ extended: true }));

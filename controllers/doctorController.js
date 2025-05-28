@@ -1,6 +1,7 @@
 // controllers/doctorController.js
-const DoctorService = require('../services/doctorService');
-const { sendSuccess } = require('../utils/helpers');
+const DoctorService = require("../services/doctorService");
+const AppointmentService = require("../services/appointmentService");
+const { sendSuccess } = require("../utils/helpers");
 
 exports.getPatients = async (req, res, next) => {
   try {
@@ -46,7 +47,10 @@ exports.getAvailability = async (req, res, next) => {
 
 exports.setAvailability = async (req, res, next) => {
   try {
-    const blocks = await DoctorService.setAvailability(req.user.id, req.body.blocks);
+    const blocks = await DoctorService.setAvailability(
+      req.user.id,
+      req.body.blocks
+    );
     sendSuccess(res, { availability: blocks });
   } catch (err) {
     next(err);
@@ -65,8 +69,14 @@ exports.clearAvailability = async (req, res, next) => {
 
 exports.getCalendar = async (req, res, next) => {
   try {
+    // doctorId comes from req.user.id (doctor role)
     const { monthStart, monthEnd } = req.query;
-    const days = await DoctorService.getCalendar(req.user.id, monthStart, monthEnd);
+    const doctorId = req.user.id;
+    const days = await AppointmentService.getCalendar(
+      doctorId,
+      monthStart,
+      monthEnd
+    );
     sendSuccess(res, { days });
   } catch (err) {
     next(err);
@@ -75,8 +85,10 @@ exports.getCalendar = async (req, res, next) => {
 
 exports.getAppointmentsByDate = async (req, res, next) => {
   try {
-    const { date } = req.query;
-    const appointments = await DoctorService.getAppointmentsByDate(req.user.id, date);
+    // doctorId comes from req.user.id (doctor role)
+    let { date } = req.query;
+    const doctorId = req.user.id;
+    const appointments = await AppointmentService.getByDate(doctorId, date);
     sendSuccess(res, { appointments });
   } catch (err) {
     next(err);

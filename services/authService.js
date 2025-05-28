@@ -40,6 +40,18 @@ class AuthService {
     logger.info('User %s logged in', user.id);
     return { user, token };
   }
+
+  static async changeUserPassword({ userId, newPassword }) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await User.update({ id: userId }, { password_hash: hash });
+    logger.info('Admin changed password for user %s', userId);
+    return { success: true };
+  }
+
 }
 
 module.exports = AuthService;

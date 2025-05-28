@@ -1,8 +1,8 @@
 // controllers/adminController.js
-const bcrypt = require('bcrypt');
-const User = require('../models/User');
-const AuthService = require('../services/authService');
-const { sendSuccess } = require('../utils/helpers');
+const bcrypt = require("bcrypt");
+const User = require("../models/User");
+const AuthService = require("../services/authService");
+const { sendSuccess } = require("../utils/helpers");
 
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS, 10) || 10;
 
@@ -25,10 +25,31 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
+exports.changeUserPassword = async (req, res, next) => {
+  try {
+    const { userId, newPassword } = req.body;
+    const password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const updatedUser = await User.changePassword(userId, password_hash);
+    sendSuccess(res, { user: updatedUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    await User.delete(userId);
+    sendSuccess(res, {}, 200);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.listDoctors = async (req, res, next) => {
   try {
     const all = await User.getAll();
-    const doctors = all.filter(u => u.role === 'doctor');
+    const doctors = all.filter((u) => u.role === "doctor");
     sendSuccess(res, { doctors });
   } catch (err) {
     next(err);
@@ -43,9 +64,9 @@ exports.createDoctor = async (req, res, next) => {
       email,
       password_hash,
       name,
-      role: 'doctor',
+      role: "doctor",
       profile_photo_url: null,
-      department_id
+      department_id,
     });
     sendSuccess(res, { doctor }, 201);
   } catch (err) {

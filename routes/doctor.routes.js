@@ -21,9 +21,9 @@ router.post('/availability',              doctorController.setAvailability);
 router.delete('/availability/:dayOfWeek', doctorController.clearAvailability);
 
 // My appointment calendar & daily list
-// ?monthStart=&monthEnd=
+// Get doctor's calendar (days with appointments in a month)
 router.get('/calendar',                   doctorController.getCalendar);
-// ?date=YYYY-MM-DD
+// Get all appointments for a specific day
 router.get('/appointments',               doctorController.getAppointmentsByDate);
 
 module.exports = router;

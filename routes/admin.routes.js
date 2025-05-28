@@ -11,6 +11,8 @@ router.use(authMiddleware, roleMiddleware('admin'));
 // Manage users
 router.get('/users',     adminController.listUsers);
 router.post('/users',    adminController.createUser);
+router.patch('/users/:userId', adminController.changeUserPassword);
+router.delete('/users/:userId', adminController.deleteUser);
 
 // Manage doctors
 router.get('/doctors',   adminController.listDoctors);

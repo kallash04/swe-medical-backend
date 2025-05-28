@@ -1,22 +1,30 @@
 // models/User.js
-const db = require('../config/db');
+const db = require("../config/db");
 
 class User {
-  static table = 'users';
+  static table = "users";
 
   static async findById(id) {
+    const res = await db.query(`SELECT * FROM ${this.table} WHERE id = $1`, [
+      id,
+    ]);
+    return res.rows[0];
+  }
+
+  static async delete(id) {
     const res = await db.query(
-      `SELECT * FROM ${this.table} WHERE id = $1`,
+      `DELETE FROM ${this.table}
+     WHERE id = $1
+     RETURNING *`,
       [id]
     );
     return res.rows[0];
   }
 
   static async findByEmail(email) {
-    const res = await db.query(
-      `SELECT * FROM ${this.table} WHERE email = $1`,
-      [email]
-    );
+    const res = await db.query(`SELECT * FROM ${this.table} WHERE email = $1`, [
+      email,
+    ]);
     return res.rows[0];
   }
 
@@ -34,7 +42,14 @@ class User {
     return res.rows;
   }
 
-  static async create({ email, password_hash, name, role, profile_photo_url, department_id }) {
+  static async create({
+    email,
+    password_hash,
+    name,
+    role,
+    profile_photo_url,
+    department_id,
+  }) {
     const res = await db.query(
       `INSERT INTO ${this.table}
        (email, password_hash, name, role, profile_photo_url, department_id)
@@ -57,7 +72,7 @@ class User {
     vals.push(id);
     const res = await db.query(
       `UPDATE ${this.table}
-       SET ${sets.join(', ')}, updated_at=NOW()
+       SET ${sets.join(", ")}, updated_at=NOW()
        WHERE id=$${idx}
        RETURNING *`,
       vals
@@ -71,6 +86,17 @@ class User {
        SET assigned_doctor_id=$1, updated_at=NOW()
        WHERE id=$2 RETURNING *`,
       [doctorId, userId]
+    );
+    return res.rows[0];
+  }
+
+  static async changePassword(id, newPasswordHash) {
+    const res = await db.query(
+      `UPDATE ${this.table}
+       SET password_hash = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [newPasswordHash, id]
     );
     return res.rows[0];
   }

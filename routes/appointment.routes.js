@@ -19,5 +19,6 @@ router.post('/',         appointmentController.book);
 // (Optional) Cancel or complete an appointment
 router.post('/:appointmentId/cancel',   appointmentController.cancel);
 router.post('/:appointmentId/complete', appointmentController.complete);
+router.get('/services/:appointmentId', appointmentController.getServices);
 
 module.exports = router;

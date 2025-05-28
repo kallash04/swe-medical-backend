@@ -1,12 +1,14 @@
 // services/userService.js
 const db = require('../config/db');
 const User = require('../models/User');
+const MedicalRecord = require('../models/MedicalRecord');
 
 class UserService {
   static async getProfile(userId) {
     const user = await User.findById(userId);
+    const record = await MedicalRecord.findByUserId(userId);
     if (!user) throw new Error('User not found');
-    return user;
+    return {user, record};
   }
 
   static async updateProfile(userId, fields) {
