@@ -1,6 +1,6 @@
 # Medical Appointment API
 
-![GitHub Repo Size](https://img.shields.io/github/repo-size/kallash04/swe-medical-backend)![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)
+![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)
 
 ---
 
