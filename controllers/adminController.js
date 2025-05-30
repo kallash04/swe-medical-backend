@@ -38,7 +38,7 @@ exports.changeUserPassword = async (req, res, next) => {
 
 exports.deleteUser = async (req, res, next) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
     await User.delete(userId);
     sendSuccess(res, {}, 200);
   } catch (err) {
